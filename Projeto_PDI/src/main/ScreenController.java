@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import histograma.HistogramaController;
+import histograma.HistogramaOpenCvController;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -196,6 +197,11 @@ public class ScreenController {
 	}
 	
 	@FXML
+	public void openHistogramaOpenCv() {
+		openHistogramaModalOpenCv();
+	}
+	
+	@FXML
 	public void borda() {
 		img3 = Pdi.bordas(img1);
 		atualizaImagem3();
@@ -223,6 +229,30 @@ public class ScreenController {
 	@FXML
 	public void colorIdentify() {
 		Pdi.colorIdentify(img1, xi, xf, yi, yf);
+	}
+	
+	@FXML
+	public void cannyBorders() {
+		img3 = Pdi.cannyBorders(img1);
+		atualizaImagem3();
+	}
+	
+	@FXML
+	public void sobelFilter() {
+		img3 = Pdi.sobelFilter(img1);
+		atualizaImagem3();
+	}
+	
+	@FXML
+	public void laplaceFilter() {
+		img3 = Pdi.laplaceFilter(img1);
+		atualizaImagem3();
+	}
+	
+	@FXML
+	public void test() {
+		img3 = Pdi.test(img1);
+		atualizaImagem3();
 	}
 	
 	// Private Funcs.
@@ -307,6 +337,20 @@ public class ScreenController {
 			if(img3 != null) {
 				Pdi.valorizaGrafico(img3, controller.grafico3);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void openHistogramaModalOpenCv() {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/histograma/HistogramaModalOpenCv.fxml"));
+			Parent root = (Parent) loader.load();
+			
+			Scene newScene = new Scene(root);
+			Stage newStage = new Stage();
+			newStage.setScene(newScene);
+			newStage.show();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

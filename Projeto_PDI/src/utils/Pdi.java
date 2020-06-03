@@ -1,16 +1,28 @@
 package utils;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.image.WritablePixelFormat;
 import javafx.scene.paint.Color;
 
 public class Pdi {
@@ -436,6 +448,81 @@ public class Pdi {
 		return true;
 	}
 	
+	public static Image cannyBorders(Image img) {
+		if(!checkImg(img)) {
+			JOptionPane.showMessageDialog(null, "Necessário inserir imagem no SLOT 1 para prosseguir!");
+			return null;
+		}
+		
+		try {
+			Mat matImgSrc = imageToMat(img);
+			Mat matImgDst = new Mat();
+			
+			Imgproc.Canny(matImgSrc, matImgDst, 150, 150);
+			img = matAsImage(matImgDst);
+			
+			return img;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image sobelFilter(Image img) {
+		if(!checkImg(img)) {
+			JOptionPane.showMessageDialog(null, "Necessário inserir imagem no SLOT 1 para prosseguir!");
+			return null;
+		}
+		
+		try {
+			Mat matImgSrc = imageToMat(img);
+			Mat matImgDst = new Mat();
+			
+			Imgproc.Sobel(matImgSrc, matImgDst, CvType.CV_16S, 1, 0);
+			img = matAsImage(matImgDst);
+			
+			return img;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image laplaceFilter(Image img) {
+		if(!checkImg(img)) {
+			JOptionPane.showMessageDialog(null, "Necessário inserir imagem no SLOT 1 para prosseguir!");
+			return null;
+		}
+		
+		try {
+			Mat matImgSrc = imageToMat(img);
+			Mat matImgDst = new Mat();
+			
+			Imgproc.Laplacian(matImgSrc, matImgDst, CvType.CV_64F);
+			img = matAsImage(matImgDst);
+			
+			return img;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image test(Image img) {
+		if(!checkImg(img)) {
+			JOptionPane.showMessageDialog(null, "Necessário inserir imagem no SLOT 1 para prosseguir!");
+			return null;
+		}
+		
+		Mat matImgSrc = imageToMat(img);
+		Mat matImgDst = new Mat();
+		
+		Imgproc.Canny(matImgSrc, matImgDst, 150, 150);
+		img = matAsImage(matImgDst);
+		
+		return img;
+	}
+	
 // PRIVATE FUNC'S
 	
 	private static void ruidoX(ImageData imgData) {
@@ -519,5 +606,44 @@ public class Pdi {
 		}
 		return qt;
 	}
+	
+	private static void carregaOpenCv() {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+	}
 
+	private static Image matAsImage(Mat frame) {
+		carregaOpenCv();
+		
+    	BufferedImage image = null;
+    	
+    	int width = frame.width(), height = frame.height(), channels = frame.channels();
+    	byte[] sourcePixels = new byte[width * height * channels];
+    	
+    	frame.get(0, 0, sourcePixels);
+    	
+    	if(frame.channels() > 1) {
+    		image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+    	} else {
+    		image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+    	}
+    	final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+    	System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
+    	
+    	return SwingFXUtils.toFXImage(image, null);
+    }
+	
+	private static Mat imageToMat(Image img) {
+		carregaOpenCv();
+		
+		ImageData imgData = new ImageData(img);
+		byte[] buffer = new byte[(int)img.getWidth() * (int)img.getHeight() * 4];
+		
+		WritablePixelFormat<ByteBuffer> format = WritablePixelFormat.getByteBgraInstance();
+		imgData.getPr().getPixels(0, 0, (int)img.getWidth(), (int)img.getHeight(), format, buffer, 0, ((int)img.getWidth() * 4));
+		
+		Mat mat = new Mat((int)img.getHeight(), (int)img.getWidth(), CvType.CV_8UC4);
+		mat.put(0, 0, buffer);
+		
+		return mat;
+	}
 }
