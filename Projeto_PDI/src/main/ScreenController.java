@@ -16,6 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -66,6 +67,13 @@ public class ScreenController {
 	
 	// Listrado
 	@FXML TextField txtFieldQt;
+	
+	// Prova 1
+	//  -- Q1
+	@FXML ColorPicker colorPickQ1;
+	@FXML TextField txtFieldQ1;
+	
+	
 	
 	
 	private Image img1, img2, img3;
@@ -229,6 +237,28 @@ public class ScreenController {
 	@FXML
 	public void colorIdentify() {
 		Pdi.colorIdentify(img1, xi, xf, yi, yf);
+	}
+	
+	@FXML
+	public void prova1Q1() {
+		try {
+			img3 = Pdi.prova1Q1(img1, Integer.parseInt(txtFieldQ1.getText()), colorPickQ1);
+			atualizaImagem3();
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Não foi possível executar a operação");
+		}
+	}
+	
+	@FXML
+	public void prova1Q2() {
+		img3 = Pdi.prova1Q2(img1);
+		atualizaImagem3();
+	}
+	
+	@FXML
+	public void prova1Q3() {
+		JOptionPane.showMessageDialog(null, Pdi.prova1Q3(img1));
 	}
 	
 	@FXML

@@ -19,7 +19,9 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.WritablePixelFormat;
@@ -446,6 +448,127 @@ public class Pdi {
 		}
 		JOptionPane.showMessageDialog(null, cores.size() + " core(s) encontrada(s)!");
 		return true;
+	}
+	
+	public static Image prova1Q1(Image img, int borderW, ColorPicker cPick) {
+		if(!checkImg(img)) {
+			JOptionPane.showMessageDialog(null, "Necessário inserir imagem no SLOT 1 para prosseguir!");
+			return null;
+		}
+		try {
+			ImageData imgData = new ImageData(img);
+			
+			if((imgData.getW() < borderW) || (imgData.getH() < borderW)) {
+				JOptionPane.showMessageDialog(null, "A borda não pode ser maior que a largura ou altura da imagem.");
+				return null;
+			}
+			
+			for (int i = 0; i < imgData.getW(); i++) {
+				for (int j = 0; j < imgData.getH(); j++) {
+					Color corA = imgData.getPr().getColor(i, j);
+					if((i < borderW) || (i > (imgData.getW() - borderW))) {
+						Color corN = new Color(cPick.getValue().getRed(),cPick.getValue().getGreen(),cPick.getValue().getBlue(), 1);
+						
+						imgData.getPw().setColor(i,j,corN);
+					} else {
+						Color corN = new Color(corA.getRed(),corA.getGreen(),corA.getBlue(), corA.getOpacity());
+						
+						imgData.getPw().setColor(i,j,corN);
+					}
+					
+					if((j < borderW) || (j> (imgData.getH() - borderW))) {
+						Color corN = new Color(cPick.getValue().getRed(),cPick.getValue().getGreen(),cPick.getValue().getBlue(), 1);
+						
+						imgData.getPw().setColor(i,j,corN);
+					}
+				}
+			}
+			
+			return imgData.getWi();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Image prova1Q2(Image img) {
+		if(!checkImg(img)) {
+			JOptionPane.showMessageDialog(null, "Necessário inserir imagem no SLOT 1 para prosseguir!");
+			return null;
+		}
+		try {
+			ImageData imgData = new ImageData(img);
+			
+			int half = imgData.getH()/2;
+			
+			for (int i = 0; i < imgData.getW(); i++) {
+				for (int j = 0; j < imgData.getH(); j++) {
+					Color corA = imgData.getPr().getColor(i, j);
+					
+					if(j < half) {
+						Color corN = new Color(
+							(1 - corA.getRed()),
+							(1 - corA.getGreen()),
+							(1 - corA.getBlue()),
+							corA.getOpacity());
+						
+						imgData.getPw().setColor(i, j, corN);
+					} else {
+						double media = ((corA.getRed() + corA.getGreen() + corA.getBlue()) / 3);
+							
+						Color corN = new Color(media, media, media, corA.getOpacity());
+						
+						imgData.getPw().setColor(i, j, corN);
+					}
+				}
+			}
+			
+			return imgData.getWi();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static String prova1Q3(Image img) {
+		if(!checkImg(img)) {
+			return "Necessário inserir imagem no SLOT 1 para prosseguir!";
+		}
+		boolean teste = true;
+	    String resposta ="";
+	    
+		try {
+			
+			ImageData imgData = new ImageData(img);
+			
+			Color primeira = imgData.getPr().getColor(0, 0);
+			
+			for (int i = 0; i < imgData.getW(); i++) {
+				for (int j = 0; j < imgData.getH(); j++) {
+					
+					Color corA = imgData.getPr().getColor(i, j);
+					
+					if(corA.getBlue() != primeira.getBlue() && teste) {
+						
+						Color corLado = imgData.getPr().getColor(i, j+1);
+						Color corBaixo = imgData.getPr().getColor(i+1, j);
+						
+						  if(corLado.getBlue() == corA.getBlue() && corBaixo.getBlue() == corA.getBlue()) {
+							  resposta = "Quadrado";
+							  teste = false;  
+						  }else {
+							  resposta = "Circulo";
+							  teste = false;
+						  }
+					 }
+				}
+			}
+			
+			return  resposta;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Não foi possível realizar essa operação";
+		}
 	}
 	
 	public static Image cannyBorders(Image img) {
